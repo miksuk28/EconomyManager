@@ -14,7 +14,7 @@ class EconomyManager(DatabaseConnection):
 
         return receipts
 
-
+    # Get items from receipt by id
     def get_receipt_items(self, user_id, receipt_id):
         cur = self.conn.cursor()
         cur.execute(sql.get_receipt_items, 
@@ -60,6 +60,7 @@ class EconomyManager(DatabaseConnection):
                 }
             )
             self.conn.commit()
+            # return category_id of currently added category
             return cur.lastrowid
         # The category already exists
         except psycopg2.errors.UniqueViolation:
