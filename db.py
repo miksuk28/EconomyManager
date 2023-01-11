@@ -13,7 +13,7 @@ class DatabaseConnection:
             cursor_factory=psycopg2.extras.RealDictCursor
         )
 
-
+    # Convert every objects in the list into a dict
     def _list_and_dictify(self, items, one=False):
         if items is None:
             return None
