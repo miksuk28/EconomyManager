@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ipynb files
+*.ipynb
+
+# Config
+config.py
