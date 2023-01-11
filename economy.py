@@ -37,6 +37,8 @@ class EconomyManager(DatabaseConnection):
             }
         )
 
+        self.conn.commit()
+
     
     def get_categories(self, user_id):
         cur = self.conn.cursor()
@@ -57,7 +59,9 @@ class EconomyManager(DatabaseConnection):
                     "user_id":       user_id
                 }
             )
+            self.conn.commit()
             return cur.lastrowid
-
+        # The category already exists
         except psycopg2.errors.UniqueViolation:
+            self.conn.rollback()
             raise exc.ReceiptAlreadyExists(name)
