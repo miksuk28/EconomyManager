@@ -1,6 +1,8 @@
 from db import DatabaseConnection
 from users import UsersManagement
 from sql_stmt import SQLStatements as sql
+import economy_exceptions as exc
+import psycopg2.errors
 
 class EconomyManager(DatabaseConnection):
     def __init__(self):
@@ -14,7 +16,7 @@ class EconomyManager(DatabaseConnection):
 
         return receipts
 
-    # Get items from receipt by id
+
     def get_receipt_items(self, user_id, receipt_id):
         cur = self.conn.cursor()
         cur.execute(sql.get_receipt_items, 
@@ -25,19 +27,44 @@ class EconomyManager(DatabaseConnection):
         return items
 
 
-    # Adding items
-    def _create_empty_receipt(self, user_id, date):
+    # Create empty receipt
+    def _create_empty_receipt(self, user_id, description=None, date=None, commit=False):
         cur = self.conn.cursor()
-        cur.execute(sql.set_user_timezone, user_id)
-        cur.execute(
-            sql.create_receipt,
-            {
-                "user_id": user_id,
-                "date": date
-            }
-        )
+        #cur.execute(sql.set_user_timezone, (user_id,))
+        try:
+            cur.execute(
+                sql.create_receipt,
+                {
+                    "user_id": user_id,
+                    "description": description,
+                    "date": date
+                }
+            )
+            if commit:
+                self.conn.commit()
+            # SQL Stmt returns id
+            return cur.fetchone()["receipt_id"]
+        
+        except psycopg2.errors.DatetimeFieldOverflow:
+            self.conn.rollback()
+            raise exc.IncorrectTime(date)
+    
 
-        self.conn.commit()
+    def create_receipt(self, user_id, items, description=None, date=None):
+        # Create an empty receipt and get the id of it
+        cur = self.conn.cursor()
+        receipt_id = self._create_empty_receipt(user_id, description, date)
+
+        for item in items:
+            item.update({"receipt_id": receipt_id})
+
+        try:
+            cur.executemany(sql.insert_items, items)
+            self.conn.commit()
+
+        except psycopg2.errors.UniqueViolation as e:
+            self.conn.rollback()
+            raise exc.DuplicateItems(e.pgerror)
 
     
     def get_categories(self, user_id):
@@ -60,9 +87,9 @@ class EconomyManager(DatabaseConnection):
                 }
             )
             self.conn.commit()
-            # return category_id of currently added category
-            return cur.lastrowid
-        # The category already exists
+            # SQL Stmt returns id
+            return cur.fetchone()["category_id"]
+
         except psycopg2.errors.UniqueViolation:
             self.conn.rollback()
-            raise exc.ReceiptAlreadyExists(name)
+            raise exc.CategoryAlreadyExists(name)

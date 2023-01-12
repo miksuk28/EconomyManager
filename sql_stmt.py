@@ -55,7 +55,7 @@ class SQLStatements:
     '''
 
     get_receipt_items = '''
-        SELECT i.item_id, i.name, c.name AS category, price, quantity, (price * quantity) AS sum
+        SELECT i.item_id, i.name, c.category_name AS category, price, quantity, (price * quantity) AS sum
         FROM items i
         LEFT JOIN categories c ON i.category_id = c.category_id
         LEFT JOIN receipts r ON i.receipt_id = r.receipt_id
@@ -71,15 +71,22 @@ class SQLStatements:
     '''
 
     create_receipt = '''
-        INSERT INTO receipts (user_id, date)
-        VALUES (%(user_id)s, %(date)s)
+        INSERT INTO receipts (user_id, description, date)
+        VALUES (%(user_id)s, %(description)s, %(date)s)
+        RETURNING receipt_id
+    '''
+
+    insert_items = '''
+        INSERT INTO items (receipt_id, name, price, quantity, category_id)
+        VALUES (%(receipt_id)s, %(name)s, %(price)s, %(quantity)s, %(category_id)s)
     '''
 
     #### Categories ####
     # Add category for user
     add_category = '''
-        INSERT OR IGNORE INTO categories (category_name, user_id)
+        INSERT INTO categories (category_name, user_id)
         VALUES (%(category_name)s, %(user_id)s)
+        RETURNING category_id
     '''
 
     # Get categories for user
