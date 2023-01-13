@@ -135,3 +135,6 @@ dmypy.json
 config.py
 
 *.code-workspace
+
+__pycache__
+*.ipynb
