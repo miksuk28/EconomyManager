@@ -34,15 +34,16 @@ def login():
         return jsonify({
             "token": token,
             "status": 200,
-            "message": "Authenticated. Use the token as a header in future requests",
-            "displayMessage": False
+            "message":          "Authenticated. Use the token as a header in future requests",
+            "displayMessage":   False
         }), 200
 
     except users_exceptions.IncorrectCredentials:
         return jsonify({
-            "message": "Wrong credentials. Access denied",
-            "error": "Wrong credentials",
-            "status": 403, "displayMessage": True
+            "message":          "Wrong credentials. Access denied",
+            "error":            "Wrong credentials",
+            "status":           403,
+            "displayMessage":   True
         }), 403
 
 
