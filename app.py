@@ -14,13 +14,13 @@ app.config["JSON_SORT_KEYS"] = False
 economy = EconomyManager()
 users = UsersManagement()
 
-#### Hello World
+#### GET: Hello World
 @app.route("/hello", methods=["GET"])
 def index():
     return "Hello, World"
 
 
-#### Login with username and password, to receive token
+#### POST: Login with username and password, to receive token
 @app.route("/login", methods=["POST"])
 @validate_json(json_schemas.login)
 def login():
@@ -36,7 +36,7 @@ def login():
             "status": 200,
             "message":          "Authenticated. Use the token as a header in future requests",
             "displayMessage":   False
-        }), 200
+        }), 200 # OK
 
     except users_exceptions.IncorrectCredentials:
         return jsonify({
@@ -44,7 +44,7 @@ def login():
             "error":            "Wrong credentials",
             "status":           403,
             "displayMessage":   True
-        }), 403
+        }), 403 # Forbidden
 
 
 #### POST: Create receipt with items
@@ -60,14 +60,14 @@ def create_receipt(session):
             "message":          f"Successfully created receipt with the id of {receipt_id}",
             "status":           201,
             "displayMessage":   False
-        }), 201
+        }), 201 # Created
 
     except psycopg2.errors.DatetimeFieldOverflow:
         return jsonify({
             "message":          "Date is out of range. Please check if it follows the format YYYY-MM-DD",
             "error":            "Date is out of range YYYY-MM-DD",
             "displayMessage":   True
-        }), 400
+        }), 400 # Bad Request
 
     except economy_exceptions.DuplicateItems:
         return jsonify({
@@ -75,24 +75,24 @@ def create_receipt(session):
             "error":            "Receipt has duplicate products",
             "status":           409,
             "displayMessage":   True
-        }), 400
+        }), 400 # Bad Request
 
 
-### Get receipt summary for user
+### GET: Get receipt summary for user
 @app.route("/receipts", methods=["GET"])
 @authenticate()
 def get_all_receipts(session):
     return jsonify(economy.get_receipts(session["user_id"]))
 
 
-### Get items in receipt for user, by receipt_id
+### GET: Get items in receipt for user, by receipt_id
 @app.route("/receipts/<int:id>", methods=["GET"])
 @authenticate()
 def get_receipt(id, session):
     return jsonify(economy.get_receipt_items(
         user_id=session["user_id"],
         receipt_id=id
-    ))
+    )), 200 # OK
 
 
 if __name__ == "__main__":
