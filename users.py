@@ -1,6 +1,5 @@
 from db import DatabaseConnection
 from sql_stmt import SQLStatements as sql
-
 from hmac import compare_digest
 from bcrypt import gensalt
 import users_exceptions as exc
