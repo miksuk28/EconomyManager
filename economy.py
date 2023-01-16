@@ -62,6 +62,8 @@ class EconomyManager(DatabaseConnection):
         try:
             cur.executemany(sql.insert_items, items)
             self.conn.commit()
+            
+            return receipt_id
 
         except psycopg2.errors.UniqueViolation as e:
             self.conn.rollback()
