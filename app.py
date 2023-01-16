@@ -14,7 +14,7 @@ economy = EconomyManager()
 users = UsersManagement()
 
 
-@app.route("/", methods=["GET"])
+@app.route("/hello", methods=["GET"])
 def index():
     return "Hello, World"
 
@@ -33,6 +33,16 @@ def login():
 
     except users_exceptions.IncorrectCredentials:
         return jsonify({"message": "Wrong credentials. Access denied", "error": "Wrong credentials", "status": 403, "displayMessage": True}), 403
+
+
+@app.route("/receipts", methods=["POST"])
+@validate_json(json_schemas.create_receipt)
+@authenticate()
+def create_receipt(session):
+    body = request.get_json()
+    print(body)
+
+    return jsonify({"message": "OK"}), 200
 
 
 @app.route("/receipts", methods=["GET"])
