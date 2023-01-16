@@ -14,12 +14,13 @@ app.config["JSON_SORT_KEYS"] = False
 economy = EconomyManager()
 users = UsersManagement()
 
-
+#### Hello World
 @app.route("/hello", methods=["GET"])
 def index():
     return "Hello, World"
 
 
+#### Login with username and password, to receive token
 @app.route("/login", methods=["POST"])
 @validate_json(json_schemas.login)
 def login():
@@ -76,12 +77,14 @@ def create_receipt(session):
         }), 400
 
 
+### Get receipt summary for user
 @app.route("/receipts", methods=["GET"])
 @authenticate()
 def get_all_receipts(session):
     return jsonify(economy.get_receipts(session["user_id"]))
 
 
+### Get items in receipt for user, by receipt_id
 @app.route("/receipts/<int:id>", methods=["GET"])
 @authenticate()
 def get_receipt(id, session):
