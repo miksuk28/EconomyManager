@@ -46,7 +46,7 @@ class SQLStatements:
 
     #### Receipts ####
     get_receipts = '''
-        SELECT r.receipt_id, r.description, SUM(i.quantity) AS total_items, COUNT(i.item_id) AS unique_items, SUM(i.price * i.quantity) AS total, r.date, COUNT(f.file_id) AS files
+        SELECT r.receipt_id AS receiptId, r.description, SUM(i.quantity) AS totalItems, COUNT(i.item_id) AS unique_items AS uniqueItems, SUM(i.price * i.quantity) AS total, r.date, COUNT(f.file_id) AS files
         FROM items i
         LEFT JOIN receipts r ON r.receipt_id = i.receipt_id
         LEFT JOIN files f ON f.receipt_id = r.receipt_id

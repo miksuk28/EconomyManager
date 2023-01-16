@@ -4,6 +4,7 @@ from sql_stmt import SQLStatements as sql
 import economy_exceptions as exc
 import psycopg2.errors
 
+
 class EconomyManager(DatabaseConnection):
     def __init__(self):
         DatabaseConnection.__init__(self)
