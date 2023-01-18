@@ -14,11 +14,6 @@ app.config["JSON_SORT_KEYS"] = False
 economy = EconomyManager()
 users = UsersManagement()
 
-#### GET: Hello World
-@app.route("/hello", methods=["GET"])
-def index():
-    return "Hello, World"
-
 
 #### POST: Login with username and password, to receive token
 @app.route("/login", methods=["POST"])
