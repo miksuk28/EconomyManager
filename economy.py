@@ -25,7 +25,12 @@ class EconomyManager(DatabaseConnection):
         )
         items = self._list_and_dictify(cur.fetchall())
 
-        return items
+        cur.execute(sql.get_receipt_info,
+            {"user_id": user_id, "receipt_id": receipt_id}
+        )
+        receipt_info = self._list_and_dictify(cur.fetchone(), one=True)
+
+        return items, receipt_info
 
 
     # Create empty receipt
