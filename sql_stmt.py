@@ -52,6 +52,16 @@ class SQLStatements:
         LEFT JOIN files f ON f.receipt_id = r.receipt_id
         WHERE r.user_id = %(user_id)s
         GROUP BY r.receipt_id
+        ORDER BY r.receipt_id DESC
+    '''
+
+    get_receipt_info = '''
+        SELECT r.receipt_id, r.description, SUM(i.quantity) AS total_items, COUNT(i.item_id) AS unique_items, SUM(i.price * i.quantity) AS total, r.date, COUNT(f.file_id) AS files
+        FROM items i
+        LEFT JOIN receipts r ON r.receipt_id = i.receipt_id
+        LEFT JOIN files f ON f.receipt_id = r.receipt_id
+        WHERE r.user_id = %(user_id)s AND r.receipt_id = %(receipt_id)s
+        GROUP BY r.receipt_id
     '''
 
     get_receipt_items = '''
