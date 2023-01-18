@@ -38,13 +38,14 @@ def login():
             "displayMessage":   False
         }), 200 # OK
 
-    except users_exceptions.IncorrectCredentials:
+    except (users_exceptions.IncorrectCredentials, users_exceptions.UserDoesNotExist) as error:
         return jsonify({
-            "message":          "Wrong credentials. Access denied",
-            "error":            "Wrong credentials",
+            "message":          "Wrong credentials. Please check if the username and password is correct",
+            "error":            "Bad credentials",
             "status":           403,
             "displayMessage":   True
         }), 403 # Forbidden
+
 
 
 #### POST: Create receipt with items
@@ -85,14 +86,34 @@ def get_all_receipts(session):
     return jsonify(economy.get_receipts(session["user_id"]))
 
 
+
 ### GET: Get items in receipt for user, by receipt_id
 @app.route("/receipts/<int:id>", methods=["GET"])
 @authenticate()
 def get_receipt(id, session):
-    return jsonify(economy.get_receipt_items(
+    items, receipt_info = economy.get_receipt_items(
         user_id=session["user_id"],
         receipt_id=id
-    )), 200 # OK
+    )
+
+    if not items:
+        return jsonify({
+            "message":          f"No receipt with the id {id} exists",
+            "error":            f"Receipt with id {id} does not exist",
+            "status":           404,
+            "displayMessage2":  True
+        }), 404
+    
+    else:
+        return jsonify({
+            "message":          f"Returned receipt with id {id}",
+            "totalItems":       receipt_info["total_items"],
+            "uniqueItems":      receipt_info["unique_items"],
+            "sum":              receipt_info["total"],
+            "date":             receipt_info["date"],
+            "files":            receipt_info["files"],
+            "items":            items
+        }), 200
 
 
 if __name__ == "__main__":
