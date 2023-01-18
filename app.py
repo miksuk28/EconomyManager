@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from economy import EconomyManager
 from users import UsersManagement
 from wrappers import validate_json, authenticate
@@ -40,6 +40,9 @@ def login():
             "status":           403,
             "displayMessage":   True
         }), 403 # Forbidden
+    
+    except Exception as error:
+        abort(500, session, error)
 
 
 
@@ -65,13 +68,17 @@ def create_receipt(session):
             "displayMessage":   True
         }), 400 # Bad Request
 
-    except economy_exceptions.DuplicateItems:
-        return jsonify({
-            "message":          "The receipt contains multiple products. Please remove the duplicate",
-            "error":            "Receipt has duplicate products",
-            "status":           409,
-            "displayMessage":   True
-        }), 400 # Bad Request
+    # except economy_exceptions.DuplicateItems:
+    #     return jsonify({
+    #         "message":          "The receipt contains duplicate items. Please remove the duplicate(s)",
+    #         "error":            "Receipt has duplicate products",
+    #         "status":           409,
+    #         "displayMessage":   True
+    #     }), 400 # Bad Request
+
+    except Exception as error:
+        session["original_exception"] = error
+        abort(500, session)
 
 
 ### GET: Get receipt summary for user
@@ -109,6 +116,19 @@ def get_receipt(id, session):
             "files":            receipt_info["files"],
             "items":            items
         }), 200
+
+
+#### ERROR HANDLERS
+# 500 - Internal Server Error
+@app.errorhandler(500)
+def internal_server_error(session):
+    print(f"\n\nSESSION DATA: {session.description['original_exception']}\n\n")
+    return jsonify({
+        "message":          "An internal server error has occured. If this error persist, please contact the admin",
+        "error":            "500 Internal Server Error",
+        "status":           500,
+        "displayMessage":   True
+    }), 500 # Internal Server Error
 
 
 if __name__ == "__main__":
