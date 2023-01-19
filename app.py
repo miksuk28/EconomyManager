@@ -68,13 +68,13 @@ def create_receipt(session):
             "displayMessage":   True
         }), 400 # Bad Request
 
-    # except economy_exceptions.DuplicateItems:
-    #     return jsonify({
-    #         "message":          "The receipt contains duplicate items. Please remove the duplicate(s)",
-    #         "error":            "Receipt has duplicate products",
-    #         "status":           409,
-    #         "displayMessage":   True
-    #     }), 400 # Bad Request
+    except economy_exceptions.DuplicateItems:
+        return jsonify({
+            "message":          "The receipt contains duplicate items. Please remove the duplicate(s)",
+            "error":            "Receipt has duplicate products",
+            "status":           409,
+            "displayMessage":   True
+        }), 409 # Bad Request
 
     except Exception as error:
         session["original_exception"] = error
