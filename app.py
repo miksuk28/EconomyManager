@@ -109,12 +109,12 @@ def get_receipt(id, session):
     else:
         return jsonify({
             "message":          f"Returned receipt with id {id}",
-            "totalItems":       receipt_info["total_items"],
-            "uniqueItems":      receipt_info["unique_items"],
-            "sum":              receipt_info["total"],
+            "total_items":      receipt_info["total_items"],
+            "unique_items":     receipt_info["unique_items"],
+            "total":            receipt_info["total"],
             "date":             receipt_info["date"],
             "files":            receipt_info["files"],
-            "items":            items
+            "products":         items
         }), 200
 
 
